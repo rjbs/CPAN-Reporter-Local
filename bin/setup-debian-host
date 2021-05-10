@@ -1,6 +1,10 @@
 #!/bin/sh
 sudo apt-get update
-sudo apt-get install build-essential perl git libreadline-dev
+sudo apt-get install build-essential \
+                     git \
+                     perl \
+                     libreadline-dev \
+                     libcpan-mini-perl \
 
 git clone https://github.com/tokuhirom/plenv.git .plenv
 git clone https://github.com/tokuhirom/Perl-Build.git ~/.plenv/plugins/perl-build/
@@ -15,3 +19,5 @@ END
 
 export PATH="$HOME/.plenv/bin:$PATH"
 eval "$(plenv init -)"
+
+minicpan -r https://www.cpan.org/CPAN -l ~/minicpan
