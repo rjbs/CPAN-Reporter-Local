@@ -19,5 +19,6 @@ useradd smoker --create-home --shell /bin/bash
 
 mkdir ~smoker/.ssh
 cp ~root/.ssh/authorized_keys ~smoker/.ssh
+echo "StrictHostKeyChecking no" >> ~smoker/.ssh/config
 
 chown -R smoker: ~smoker/.ssh
