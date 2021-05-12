@@ -22,11 +22,9 @@ $loop->add($http);
 
 my $WANT_TYPE   = 'g6-standard-2';
 my $WANT_IMAGE  = 'linode/debian10';
-my $WANT_VOLUME = 'minicpan';
 
 my $type    = get_type();
 my $image   = get_image();
-my $mirror  = get_mirror_volume();
 
 my $pw = `pw`;
 chomp $pw;
@@ -73,35 +71,6 @@ until ($status eq 'running') {
   $status = $data->{status};
 }
 
-say "Linode is running.";
-
-my $clone_res = $http->POST(
-  "https://api.linode.com/v4/volumes/$mirror->{id}/clone",
-  encode_json({ label => "$WANT_VOLUME-clone" }),
-  content_type => 'application/json',
-  headers => [
-    Authorization => "Bearer $ENV{LINODE_API_TOKEN}",
-  ]
-)->get;
-
-die "couldn't clone mirror volume\n" unless $clone_res->is_success;
-
-my $clone = decode_json($clone_res->decoded_content(charset => undef));
-say "Mirror volume cloned: " . $clone_res->decoded_content(charset => undef);
-
-my $attach_res = $http->POST(
-  "https://api.linode.com/v4/volumes/$clone->{id}/attach",
-  encode_json({ linode_id => $linode->{id} }),
-  content_type => 'application/json',
-  headers => [
-    Authorization => "Bearer $ENV{LINODE_API_TOKEN}",
-  ]
-)->get;
-
-die "couldn't attached cloned mirror volume\n" unless $attach_res->is_success;
-
-say "Mirror volume attached: " .  $attach_res->decoded_content(charset => undef);
-
 say "Linode is ready.  Go smoke!";
 
 sub get_type {
@@ -126,26 +95,4 @@ sub get_image {
                $data->{data}->@*;
 
   return $image;
-}
-
-sub get_mirror_volume {
-  my $res = $http->GET(
-                    'https://api.linode.com/v4/volumes',
-                    headers => [
-                      Authorization => "Bearer $ENV{LINODE_API_TOKEN}",
-                    ],
-                  )
-                 ->get;
-
-  warn $res->decoded_content(charset => undef) . "\n";
-
-  my $data = decode_json($res->decoded_content(charset => undef));
-
-  my ($vol, @rest) = grep {; $_->{label} eq $WANT_VOLUME }
-                     $data->{data}->@*;
-
-  die "no volume named $WANT_VOLUME!\n" unless $vol;
-  die "more than one volume named $WANT_VOLUME!\n" if @rest;
-
-  return $vol;
 }
