@@ -10,3 +10,22 @@ git clone $REPO build-repo
 cd build-repo
 
 grindperl --prefix ~/smoke-perl --install
+
+export PATH=~/smoke-perl/bin:$PATH
+
+# Download dists in perl, not by shelling out.
+cpan -M $CPAN LWP::UserAgent LWP::Protocol::https < /dev/null
+
+# Allow the allow_installing_outdated_dists option to work.
+cpan -M $CPAN CPAN::DistnameInfo < /dev/null
+
+# Because of this output from CPAN:
+#   'YAML' not installed, will not store persistent state
+cpan -M $CPAN YAML < /dev/null
+
+# Improve out logging, apparently?
+# TODO this will require an XML parser (!)
+# cpan -M $CPAN Log::Log4Perl < /dev/null
+
+# Let's get ready to smoke!
+cpan -M $CPAN CPAN::Reporter::Smoker Test::Reporter < /dev/null
