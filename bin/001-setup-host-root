@@ -4,8 +4,13 @@
 apt-get update
 apt-get -y dist-upgrade
 apt-get -y install build-essential \
-                git \
+                git  \
                 perl \
+                tmux \
+                libssl-dev \
+                zlib1g-dev \
+                libbz2-dev \
+                libidn2-dev \
                 libreadline-dev
 
 cpan App::grindperl < /dev/null
