@@ -52,7 +52,7 @@ cpan CPAN::Reporter::Smoker Test::Reporter < /dev/null
 mkdir test-reports
 mkdir .cpanreporter
 
-cat < .cpanreporter/config.ini <<'END'
+cat > .cpanreporter/config.ini <<'END'
 edit_report=no
 email_from=rjbs@cpan.org
 send_report=yes
