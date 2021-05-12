@@ -2,28 +2,17 @@
 
 ## TO BE RUN AS ROOT
 apt-get update
-apt-get dist-upgrade
-apt-get install build-essential git perl libreadline-dev libcpan-mini-perl
+apt-get -y dist-upgrade
+apt-get -y install build-essential \
+                git \
+                perl \
+                libreadline-dev
 
-useradd smoker --create-home
+cpan App::grindperl < /dev/null
+
+useradd smoker --create-home --shell /bin/bash
 
 mkdir ~smoker/.ssh
 cp ~root/.ssh/authorized_keys ~smoker/.ssh
 
 chown -R smoker: ~smoker/.ssh
-
-git clone https://github.com/tokuhirom/plenv.git .plenv
-git clone https://github.com/tokuhirom/Perl-Build.git ~/.plenv/plugins/perl-build/
-
-echo 'export PATH="$HOME/.plenv/bin:$PATH"' >> ~/.profile
-echo 'eval "$(plenv init -)"' >> ~/.profile
-
-echo <<"END"
-Your ~/.profile has been updated.  You'll need to restart your login shell.  In
-the meantime, this shell's environment has been updated.
-END
-
-export PATH="$HOME/.plenv/bin:$PATH"
-eval "$(plenv init -)"
-
-minicpan -r https://www.cpan.org/CPAN -l ~/minicpan
