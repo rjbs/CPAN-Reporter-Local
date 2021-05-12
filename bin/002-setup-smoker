@@ -11,7 +11,29 @@ cd build-repo
 
 grindperl --prefix ~/smoke-perl --install
 
+cd ~
+
 export PATH=~/smoke-perl/bin:$PATH
+
+perl <<'END'
+use strict;
+use CPAN;
+use CPAN::HandleConfig;
+CPAN::HandleConfig->load;
+$CPAN::Config->{test_report} = 1;
+$CPAN::Config->{urllist} = [ 'https://minicpan.us-east-1.linodeobjects.com/2021-05-11' ];
+CPAN::HandleConfig->commit;
+END
+
+mkdir test-reports
+mkdir .cpanreporter
+
+cat < .cpanreporter/config.ini <<'END'
+edit_report=no
+email_from=rjbs@cpan.org
+send_report=yes
+transport=File /home/smoker/test-reports
+END
 
 # Download dists in perl, not by shelling out.
 cpan -M $CPAN LWP::UserAgent LWP::Protocol::https < /dev/null
