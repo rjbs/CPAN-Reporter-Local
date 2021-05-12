@@ -30,6 +30,9 @@ cpan LWP::UserAgent LWP::Protocol::https < /dev/null
 # Allow the allow_installing_outdated_dists option to work.
 cpan CPAN::DistnameInfo < /dev/null
 
+cpan CPAN < /dev/null
+cpan CPAN::DistnameInfo < /dev/null
+
 # Because of this output from CPAN:
 #   'YAML' not installed, will not store persistent state
 cpan YAML < /dev/null
@@ -38,7 +41,9 @@ cpan YAML < /dev/null
 # TODO this will require an XML parser (!)
 # cpan Log::Log4Perl < /dev/null
 
-# Let's get ready to smoke!
+# Install the smoking software.  (Do we really need CPAN::Reporter::Smoker?
+# Only if we plan to use it, which we might.  But for now, smoking a fixed list
+# of things might be perfectly reasonable, instead.)
 cpan CPAN::Reporter::Smoker Test::Reporter < /dev/null
 
 # TODO CPAN::Reporter::Smoker says it wants indices/find-ls.gz to be in the
@@ -59,6 +64,10 @@ use strict;
 use CPAN;
 use CPAN::HandleConfig;
 CPAN::HandleConfig->load;
-$CPAN::Config->{test_report} = 1;
+$CPAN::Config->{test_report} = 1;     # Enable test reporting at all.
+$CPAN::Config->{build_dir_reuse} = 1; # Suggested by CPAN::Reporter::Smoker
 CPAN::HandleConfig->commit;
 END
+
+# Now we smoke, and since he who pays the piper calls the tune...
+cpan Task::BeLike::RJBS
