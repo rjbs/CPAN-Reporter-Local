@@ -41,6 +41,9 @@ cpan YAML < /dev/null
 # Let's get ready to smoke!
 cpan CPAN::Reporter::Smoker Test::Reporter < /dev/null
 
+# TODO CPAN::Reporter::Smoker says it wants indices/find-ls.gz to be in the
+# minicpan, which we did not set up. -- rjbs, 2021-05-12
+
 mkdir test-reports
 mkdir .cpanreporter
 
