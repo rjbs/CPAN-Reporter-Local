@@ -1,0 +1,11 @@
+#!/bin/sh
+
+## TO BE RUN AS SMOKE USER
+
+REPO=git@github.com:Perl/perl5.git
+HEAD=blead
+
+git clone $REPO build-repo
+cd build-repo
+
+grindperl --prefix ~/smoke-perl --install
