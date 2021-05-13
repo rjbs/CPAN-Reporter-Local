@@ -2,9 +2,11 @@
 use v5.30.0;
 use warnings;
 
+use Getopt::Long::Descriptive;
 use IO::Async;
 use JSON::MaybeXS;
 use Net::Async::HTTP;
+use Path::Tiny;
 
 # pick the right Linode type to build
 #   https://www.linode.com/docs/api/linode-types/#types-list
@@ -16,12 +18,16 @@ use Net::Async::HTTP;
 #   https://www.linode.com/docs/api/linode-instances/#linode-create
 # clone and attach minicpan volume to new Linode instance
 
+my ($opt, $usage) = describe_options(
+  '%c %o',
+  [ 'image=s',  'Linode image to start from', { default => 'linode/debian10' } ],
+  [ 'type=s',   'Linode instance type',       { default => 'g6-standard-2' } ],
+  [ 'label=s',  'label for new instance',     { default => "smoker-$^T-$$" } ],
+);
+
 my $loop = IO::Async::Loop->new;
 my $http = Net::Async::HTTP->new;
 $loop->add($http);
-
-my $WANT_TYPE   = 'g6-standard-2';
-my $WANT_IMAGE  = 'linode/debian10';
 
 my $type    = get_type();
 my $image   = get_image();
@@ -39,7 +45,7 @@ my $res = $http->POST(
     type              => $type->{id},
     region            => 'us-east',
     root_pass         => $pw,
-    # label           => '...',
+    label             => $opt->label,
   }),
   content_type => 'application/json',
   headers => [
@@ -73,13 +79,16 @@ until ($status eq 'running') {
 
 say "Linode is ready.  Go smoke!";
 
+path("latest-linode-ip.txt")->spew($linode->{ipv4}[0]);
+
 sub get_type {
   my $res = $http->GET('https://api.linode.com/v4/linode/types')
                  ->get;
 
   my $data = decode_json($res->decoded_content(charset => undef));
 
-  my ($type) = grep {; $_->{id} eq $WANT_TYPE }
+  my $want_type = $opt->type;
+  my ($type) = grep {; $_->{id} eq $want_type }
                $data->{data}->@*;
 
   return $type;
@@ -91,7 +100,8 @@ sub get_image {
 
   my $data = decode_json($res->decoded_content(charset => undef));
 
-  my ($image) = grep {; $_->{id} eq $WANT_IMAGE }
+  my $want_image = $opt->image;
+  my ($image) = grep {; $_->{id} eq $want_image }
                $data->{data}->@*;
 
   return $image;
