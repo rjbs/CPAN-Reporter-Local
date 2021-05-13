@@ -1,0 +1,33 @@
+#!/usr/bin/env perl
+use v5.30.0;
+use warnings;
+
+use Getopt::Long::Descriptive;
+use Path::Tiny;
+use Process::Status;
+
+my ($opt, $usage) = describe_options(
+  '%c %o',
+  [ 'image=s',  'Linode image to start from', { default => 'linode/debian10' } ],
+  [ 'type=s',   'Linode instance type',       { default => 'g6-standard-2' } ],
+  [ 'label=s',  'label for new instance',     { default => "smoker-$^T-$$" } ],
+);
+
+system("bin/000-create-linode", "--type", $opt->type);
+Process::Status->assert_ok("creating linode");
+
+my $ip = path('latest-linode-ip.txt')->slurp;
+
+my $lax_keys = join q{ },
+  q{-o "StrictHostKeyChecking no"},
+  q{-o "CheckHostIP no"},
+  q{-o "UserKnownHostsFile known-hosts"};
+
+system(qq{scp $lax_keys bin/001-setup-host-root root\@$ip:});
+Process::Status->assert_ok("copying 001 to host");
+system(qq{ssh $lax_keys root\@$ip "bash 001-setup-host-root"});
+Process::Status->assert_ok("running 001 on host");
+
+system(qq{scp $lax_keys bin/002-setup-smoker smoker\@$ip:});
+Process::Status->assert_ok("copying 002 to host");
+system(qq{ssh $lax_keys smoker\@$ip "bash 002-setup-smoker"});
