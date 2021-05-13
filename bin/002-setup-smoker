@@ -2,7 +2,7 @@
 
 ## TO BE RUN AS SMOKE USER
 
-REPO=git@github.com:Perl/perl5.git
+REPO=https://github.com/Perl/perl5.git
 HEAD=blead
 CPAN=https://minicpan.us-east-1.linodeobjects.com/2021-05-11
 
