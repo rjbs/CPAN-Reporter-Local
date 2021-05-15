@@ -6,6 +6,8 @@ REPO=https://github.com/Perl/perl5.git
 HEAD=blead
 CPAN=https://minicpan.us-east-1.linodeobjects.com/2021-05-11
 
+export HARNESS_OPTIONS=j20
+
 git clone $REPO build-repo
 cd build-repo
 
